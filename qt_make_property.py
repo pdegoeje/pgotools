@@ -7,7 +7,7 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 decl = sys.argv[1].strip()
-match = re.search(r"(\w+\W+)(m_)?(\w+)", decl)
+match = re.search(r"([:\w]+\W+)(m_)?(\w+)", decl)
 
 if not match:
     print("Couldn't parse member variable, expected form: 'type [m_]name'")
