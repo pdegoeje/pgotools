@@ -11,6 +11,10 @@ variables = []
 functions = []
 signals = []
 slots = []
+toJson = []
+fromJson = []
+
+jsonTypeMap = { 'bool': "toBool", 'QString': 'toString', 'int': "toInt", 'qreal': "toDouble", 'double': 'toDouble' }
 
 for line in sys.argv[1].splitlines():
     decl = line.strip()
@@ -30,6 +34,16 @@ for line in sys.argv[1].splitlines():
     m_notify = f"{m_name}Changed"
     m_var = "m_" + m_name
     m_destroyed = f"{m_name}DestroyedHandler"
+    m_convFunc = jsonTypeMap[m_type]
+
+    if not m_isPointer:
+        toJson.append(f"json[\"{m_name}\"] = {m_name}();")
+        fromJson.append(f"set{m_Name}(json[\"{m_name}\"].{m_convFunc}({m_name}()));")
+    else:
+        toJson.append(f"json[\"{m_name}\"] = ctx->toJson({m_name}()); // DOUBLE CHECK, OWNED POINTER")
+        toJson.append(f"json[\"{m_name}\"] = ctx->objectToId({m_name}()); // DOUBLE CHECK, UNOWNED POINTER")
+        fromJson.append(f"ctx->fromJson({m_name}(), json[\"{m_name}\"]); // DOUBLE CHECK, OWNED POINTER")
+        fromJson.append(f"ctx->objectFromId(json[\"{m_name}\"].toInt(), [this](QObject *obj) { set{m_Name}(obj); }); // DOUBLE CHECK, UNOWNED POINTER")
 
     properties.append(f"Q_PROPERTY({m_type} {m_name} READ {m_name} WRITE set{m_Name} NOTIFY {m_notify})")
     variables.append(f"{m_type} m_{m_name} {{}};")
@@ -71,3 +85,9 @@ if len(slots):
     print("\n".join(["  " + s for s in slots]))
 print("signals:")
 print("\n".join(["  " + s for s in signals]))
+
+print("-- toJson() --")
+print("\n".join(["  " + s for s in toJson]))
+
+print("-- fromJson() --")
+print("\n".join(["  " + s for s in fromJson]))
