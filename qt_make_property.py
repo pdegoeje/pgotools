@@ -26,6 +26,7 @@ for line in sys.argv[1].splitlines():
         sys.exit(1)
         
     m_type = match.group(1).strip()
+    m_Type = m_type[0].upper() + m_type[1:]
 
     m_isPointer = m_type.endswith("*")
 
@@ -34,7 +35,7 @@ for line in sys.argv[1].splitlines():
     m_notify = f"{m_name}Changed"
     m_var = "m_" + m_name
     m_destroyed = f"{m_name}DestroyedHandler"
-    m_convFunc = jsonTypeMap[m_type]
+    m_convFunc = jsonTypeMap[m_type] if m_type in jsonTypeMap else f"to{m_Type}"    
 
     if not m_isPointer:
         toJson.append(f"json[\"{m_name}\"] = {m_name}();")
@@ -43,7 +44,7 @@ for line in sys.argv[1].splitlines():
         toJson.append(f"json[\"{m_name}\"] = ctx->toJson({m_name}()); // DOUBLE CHECK, OWNED POINTER")
         toJson.append(f"json[\"{m_name}\"] = ctx->objectToId({m_name}()); // DOUBLE CHECK, UNOWNED POINTER")
         fromJson.append(f"ctx->fromJson({m_name}(), json[\"{m_name}\"]); // DOUBLE CHECK, OWNED POINTER")
-        fromJson.append(f"ctx->objectFromId(json[\"{m_name}\"].toInt(), [this](QObject *obj) { set{m_Name}(obj); }); // DOUBLE CHECK, UNOWNED POINTER")
+        fromJson.append(f"ctx->objectFromId(json[\"{m_name}\"].toInt(), [this](QObject *obj) {{ set{m_Name}(obj); }}); // DOUBLE CHECK, UNOWNED POINTER")
 
     properties.append(f"Q_PROPERTY({m_type} {m_name} READ {m_name} WRITE set{m_Name} NOTIFY {m_notify})")
     variables.append(f"{m_type} m_{m_name} {{}};")
