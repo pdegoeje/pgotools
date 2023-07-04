@@ -19,7 +19,7 @@ jsonTypeMap = { 'bool': "toBool", 'QString': 'toString', 'int': "toInt", 'qreal'
 for line in sys.argv[1].splitlines():
     decl = line.strip()
 
-    match = re.search(r"([:\w]+\W+)(m_)?(\w+)", decl)
+    match = re.search(r"([:<>\w]+\W+)(m_)?(\w+)", decl)
 
     if not match:
         print("Couldn't parse member variable, expected form: 'type [m_]name'")
