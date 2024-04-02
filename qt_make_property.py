@@ -46,7 +46,7 @@ for line in sys.argv[1].splitlines():
         fromJson.append(f"ctx->fromJson({m_name}(), json[\"{m_name}\"]); // DOUBLE CHECK, OWNED POINTER")
         fromJson.append(f"ctx->objectFromId(json[\"{m_name}\"].toInt(), [this](QObject *obj) {{ set{m_Name}(obj); }}); // DOUBLE CHECK, UNOWNED POINTER")
 
-    properties.append(f"Q_PROPERTY({m_type} {m_name} READ {m_name} WRITE set{m_Name} NOTIFY {m_notify})")
+    properties.append(f"Q_PROPERTY({m_type} {m_name} READ {m_name} WRITE set{m_Name} NOTIFY {m_notify} FINAL)")
     variables.append(f"{m_type} m_{m_name} {{}};")
     functions.append(f"{m_type} {m_name}() const {{ return {m_var}; }}")
     signals.append(f"void {m_notify}();")
